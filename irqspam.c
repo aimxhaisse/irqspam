@@ -10,8 +10,6 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Online Labs - Cloud Team");
 MODULE_DESCRIPTION("a simple module to spam soft IRQs");
 
-#define SOFTIRQ_BATCH	10000
-
 static atomic_t nb_softirqs;
 static struct task_struct *spamming_thread;
 static struct timespec started_at;
@@ -25,14 +23,9 @@ DECLARE_TASKLET(irqspam, irqspam_handler, 0);
 
 static int irqspam_spamming_thread(void * data)
 {
-  int i = 0;
-
   while (!kthread_should_stop()) {
     tasklet_schedule(&irqspam);
-    ++i;
-    if (i % SOFTIRQ_BATCH == 0) {
-      schedule();
-    }
+    schedule();
   }
   return 0;
 }
